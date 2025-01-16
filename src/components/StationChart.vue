@@ -6,6 +6,7 @@
 
 <script lang="ts">
 import { Chart, registerables } from 'chart.js'
+import { ChartData } from '../types'
 Chart.register(...registerables)
 
 export default {
@@ -24,7 +25,6 @@ export default {
   watch: {
     chartData: {
       handler() {
-        console.log(this.chartData)
         this.renderChart()
       },
       deep: true,
@@ -40,7 +40,7 @@ export default {
       }
 
       if (!this.chartData) {
-        console.error('No chartData provided!')
+        console.warn('No chartData provided!')
         return
       }
 
@@ -51,7 +51,7 @@ export default {
       }
 
       this.chartInstance = new Chart(ctx, {
-        type: 'bar', // Change this to 'line', 'pie', etc., as needed
+        type: 'bar',
         data: {
           labels: this.chartData.labels,
           datasets: this.chartData.datasets.map((dataset: any) => ({

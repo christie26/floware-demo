@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts">
+import type { Properties } from '@/types'
 import mapboxgl from 'mapbox-gl'
 
 export default {
@@ -33,10 +34,6 @@ export default {
         id: 'bike-stations',
         type: 'circle',
         source: 'bikeStations',
-        layout: {
-          'icon-image': 'circle-15',
-          'icon-allow-overlap': true,
-        },
         paint: {
           'circle-color': [
             'match',
@@ -45,7 +42,7 @@ export default {
             '#00FF00', // Green for active stations
             'inactive',
             '#FF0000', // Red for inactive stations
-            '#0000FF', // Default to blue if no match
+            '#5b64b4', // Default color
           ],
           'circle-radius': 6,
         },

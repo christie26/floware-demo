@@ -1,3 +1,5 @@
+import { type ChartDataset } from '../types'
+
 export function calculateStationData(jsonData: any, stationId: number): any {
   const countPerHour: { [hour: string]: number } = {}
 
@@ -11,22 +13,25 @@ export function calculateStationData(jsonData: any, stationId: number): any {
 export function transformDataForChartJS(
   rawData: Record<string, number>,
   label: string,
-  backgroundColor = 'rgba(75, 192, 192, 0.2)',
-  borderColor = 'rgba(75, 192, 192, 1)',
+
+  backgroundColor = 'rgba(85,89,180,0.2)',
+  borderColor = 'rgba(85,89,180,1)',
 ) {
-  const labels = Object.keys(rawData).map(String) // Convert keys to strings for labels
-  const data = Object.values(rawData) // Extract values for dataset
+  const labels = Object.keys(rawData).map(String)
+  const data = Object.values(rawData)
+
+  const datasets: ChartDataset[] = [
+    {
+      label: label,
+      data: data,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      borderWidth: 1,
+    },
+  ]
 
   return {
     labels: labels,
-    datasets: [
-      {
-        label: label,
-        data: data,
-        backgroundColor: backgroundColor,
-        borderColor: borderColor,
-        borderWidth: 1,
-      },
-    ],
+    datasets: datasets,
   }
 }
