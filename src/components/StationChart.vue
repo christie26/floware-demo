@@ -1,7 +1,6 @@
 <template>
   <div>
     <canvas ref="chartCanvas"></canvas>
-    <p>{{ jsonData }}</p>
   </div>
 </template>
 
@@ -12,46 +11,50 @@ Chart.register(...registerables)
 export default {
   name: 'StationChart',
   props: {
-    jsonData: {
+    chartData: {
       type: Object,
       required: true,
     },
   },
+  data() {
+    return {
+      chartInstance: null as Chart | null,
+    }
+  },
   watch: {
     chartData: {
-      deep: true,
       handler() {
-        if (!this.jsonData) {
-          // console.error('Invalid JSON data format. Please provide `labels` and `datasets`.')
-          return
-        }
-        const chartData = this.transformDataForChartJS(this.jsonData, 'Activity by Hour')
-
-        this.renderChart(chartData) // Re-render the chart when data changes
+        console.log(this.chartData)
+        this.renderChart()
       },
+      deep: true,
     },
   },
   mounted() {
     this.renderChart()
   },
   methods: {
-    renderChart(chartData) {
-      // if (!this.jsonData) {
-      //   console.error('Invalid JSON data format. Please provide `labels` and `datasets`.')
-      //   return
-      // }
-      // const chartData = this.transformDataForChartJS(this.jsonData, 'Activity by Hour')
-      // console.log('chartData', chartData)
+    renderChart() {
+      if (this.chartInstance) {
+        this.chartInstance.destroy()
+      }
 
-      // const ctx = this.$refs.chartCanvas.getContext('2d')
-      // const ctx = document.getElementById('chartCanvas')
+      if (!this.chartData) {
+        console.error('No chartData provided!')
+        return
+      }
 
-      // console.log('ctx', ctx)
-      new Chart(this.$refs.chartCanvas, {
-        type: 'bar', // You can change this to 'line', 'pie', etc.
+      const ctx = (this.$refs.chartCanvas as HTMLCanvasElement).getContext('2d')
+      if (!ctx) {
+        console.error('Failed to get canvas context!')
+        return
+      }
+
+      this.chartInstance = new Chart(ctx, {
+        type: 'bar', // Change this to 'line', 'pie', etc., as needed
         data: {
-          labels: chartData.labels,
-          datasets: chartData.datasets.map((dataset) => ({
+          labels: this.chartData.labels,
+          datasets: this.chartData.datasets.map((dataset: any) => ({
             label: dataset.label,
             data: dataset.data,
             backgroundColor: dataset.backgroundColor || 'rgba(75, 192, 192, 0.2)',
@@ -64,28 +67,6 @@ export default {
           maintainAspectRatio: false,
         },
       })
-    },
-    transformDataForChartJS(
-      rawData,
-      label,
-      backgroundColor = 'rgba(75, 192, 192, 0.2)',
-      borderColor = 'rgba(75, 192, 192, 1)',
-    ) {
-      const labels = Object.keys(rawData).map(String) // Convert keys to strings for labels
-      const data = Object.values(rawData) // Extract values for dataset
-
-      return {
-        labels: labels,
-        datasets: [
-          {
-            label: label,
-            data: data,
-            backgroundColor: backgroundColor,
-            borderColor: borderColor,
-            borderWidth: 1,
-          },
-        ],
-      }
     },
   },
 }

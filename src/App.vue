@@ -8,7 +8,7 @@
 
       <div class="sector">
         <h2>Station Chart</h2>
-        <StationChart :jsonData="countResult" />
+        <StationChart :chartData="chartData" />
       </div>
     </div>
   </div>
@@ -17,7 +17,7 @@
 <script lang="ts">
 import MapboxComponent from './components/MapboxComponent.vue'
 import StationChart from './components/StationChart.vue'
-import { calculateStationData } from './components/utils.ts'
+import { calculateStationData, transformDataForChartJS } from './components/utils.ts'
 
 export default {
   name: 'App',
@@ -26,7 +26,7 @@ export default {
       mapboxToken: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
       seoulToken: import.meta.env.VITE_SEOUL_OPENDATA_KEY,
       jsonData: [] as any[],
-      countResult: null,
+      chartData: null,
     }
   },
   components: {
@@ -39,7 +39,7 @@ export default {
 
       const data = calculateStationData(this.jsonData, stationId)
       console.log(data.countPerHour)
-      this.countResult = { ...data.countPerHour }
+      this.chartData = transformDataForChartJS(data.countPerHour, 'Activity by Hour')
     },
     async loadData() {
       try {
@@ -61,7 +61,7 @@ export default {
 
         this.jsonData = data
 
-        // console.log('All data loaded:', this.jsonData)
+        console.log('All data loaded:', this.jsonData)
       } catch (error) {
         console.error('Error loading JSON files:', error)
       }
