@@ -44,12 +44,18 @@ export default {
         return
       }
 
-      const ctx = (this.$refs.chartCanvas as HTMLCanvasElement).getContext('2d')
+      const canvas = this.$refs.chartCanvas as HTMLCanvasElement
+      if (!canvas) {
+        console.error('Canvas element is not available!')
+        return
+      }
+
+      const ctx : CanvasRenderingContext2D | null= canvas.getContext('2d')
       if (!ctx) {
         console.error('Failed to get canvas context!')
         return
       }
-
+      console.log("ctx1", ctx)
       this.chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -67,6 +73,7 @@ export default {
           maintainAspectRatio: false,
         },
       })
+      console.log("ctx2", ctx)
     },
   },
 }
