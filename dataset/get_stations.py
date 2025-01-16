@@ -15,8 +15,8 @@ def fetch_data(start, end):
         raise Exception(f"Failed to fetch data for range {start}-{end}, Status Code: {response.status_code}")
     return response.json()
 
-# ranges = [(1, 1000), (1001, 2000), (2001, 3000), (3001, 3143)]
-ranges = [(1,500)]
+ranges = [(1, 1000), (1001, 2000), (2001, 3000), (3001, 3143)]
+# ranges = [(1,10)]
 all_features = []
 
 for start, end in ranges:

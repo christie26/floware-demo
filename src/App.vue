@@ -8,7 +8,7 @@
 
       <div class="sector">
         <h2>Station Chart</h2>
-        <StationChart :chartData="chartData" />
+        <StationChart :stationChartData="stationChartData" />
       </div>
     </div>
   </div>
@@ -17,7 +17,11 @@
 <script lang="ts">
 import MapboxComponent from './components/MapboxComponent.vue'
 import StationChart from './components/StationChart.vue'
-import { calculateStationData, transformDataForChartJS } from './components/utils.ts'
+import {
+  calculateAllStationData,
+  calculateOneStationData,
+  transformDataForChartJS,
+} from './components/utils.ts'
 
 export default {
   name: 'App',
@@ -25,8 +29,9 @@ export default {
     return {
       mapboxToken: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
       seoulToken: import.meta.env.VITE_SEOUL_OPENDATA_KEY,
-      jsonData: [] as any[],
-      chartData: null,
+      stationList: [],
+      usageDataByTime: [] as any[],
+      stationChartData: null,
     }
   },
   components: {
@@ -36,10 +41,11 @@ export default {
   methods: {
     handleFetchStationData(properties: any) {
       const stationId = properties.id
+      const district = properties.district
 
-      const data = calculateStationData(this.jsonData, stationId)
+      const data = calculateOneStationData(this.usageDataByTime, stationId)
       console.log(data.countPerHour)
-      this.chartData = transformDataForChartJS(data.countPerHour, 'Activity by Hour')
+      this.stationChartData = transformDataForChartJS(data.countPerHour, 'Activity by Hour')
     },
     async loadData() {
       try {
@@ -59,16 +65,35 @@ export default {
 
         const data = await Promise.all(filePromises)
 
-        this.jsonData = data
+        this.usageDataByTime = data
 
-        console.log('All data loaded:', this.jsonData)
+        console.log('All data loaded:', this.usageDataByTime)
       } catch (error) {
         console.error('Error loading JSON files:', error)
       }
     },
+    async loadStationList() {
+      try {
+        const response = await fetch(`/seoul_bike_stations.geojson`)
+        const geoJsonData = await response.json()
+        // console.log(geoJsonData)
+
+        this.stationList = geoJsonData.features.map((feature) => feature.properties)
+
+        console.log('Station data loaded:', this.stationList)
+      } catch (error) {
+        console.error('Error loading JSON files:', error)
+      }
+
+      calculateAllStationData(this.stationList, this.usageDataByTime)
+    },
+    async loadAll() {
+      await this.loadData() // Wait for loadData to finish
+      // this.loadStationList() // Then call loadStationList
+    },
   },
   mounted() {
-    this.loadData()
+    this.loadAll()
   },
 }
 </script>
@@ -84,6 +109,7 @@ export default {
   gap: 20px;
   padding: 20px;
   width: 90vw;
+  height: 90vh;
 }
 .sector {
   border: 1px solid #ccc;

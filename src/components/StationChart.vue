@@ -12,7 +12,7 @@ Chart.register(...registerables)
 export default {
   name: 'StationChart',
   props: {
-    chartData: {
+    stationChartData: {
       type: Object,
       required: true,
     },
@@ -23,7 +23,7 @@ export default {
     }
   },
   watch: {
-    chartData: {
+    stationChartData: {
       handler() {
         this.renderChart()
       },
@@ -39,8 +39,8 @@ export default {
         this.chartInstance.destroy()
       }
 
-      if (!this.chartData) {
-        console.warn('No chartData provided!')
+      if (!this.stationChartData) {
+        console.warn('No stationChartData provided!')
         return
       }
 
@@ -50,17 +50,17 @@ export default {
         return
       }
 
-      const ctx : CanvasRenderingContext2D | null= canvas.getContext('2d')
+      const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d')
       if (!ctx) {
         console.error('Failed to get canvas context!')
         return
       }
-      console.log("ctx1", ctx)
+      console.log('ctx1', ctx)
       this.chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: this.chartData.labels,
-          datasets: this.chartData.datasets.map((dataset: any) => ({
+          labels: this.stationChartData.labels,
+          datasets: this.stationChartData.datasets.map((dataset: any) => ({
             label: dataset.label,
             data: dataset.data,
             backgroundColor: dataset.backgroundColor || 'rgba(75, 192, 192, 0.2)',
@@ -73,7 +73,7 @@ export default {
           maintainAspectRatio: false,
         },
       })
-      console.log("ctx2", ctx)
+      console.log('ctx2', ctx)
     },
   },
 }
