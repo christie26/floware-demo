@@ -22,6 +22,7 @@ import {
   calculateOneStationData,
   transformDataForChartJS,
 } from './components/utils.ts'
+import type { ChartDataset } from './types.ts'
 
 export default {
   name: 'App',
@@ -31,7 +32,10 @@ export default {
       seoulToken: import.meta.env.VITE_SEOUL_OPENDATA_KEY,
       stationList: [],
       usageDataByTime: [] as any[],
-      stationChartData: null,
+      stationChartData: {
+        labels: [] as string[],
+        datasets: [] as ChartDataset[],
+      },
     }
   },
   components: {
@@ -78,7 +82,7 @@ export default {
         const geoJsonData = await response.json()
         // console.log(geoJsonData)
 
-        this.stationList = geoJsonData.features.map((feature) => feature.properties)
+        this.stationList = geoJsonData.features.map((feature: any) => feature.properties)
 
         console.log('Station data loaded:', this.stationList)
       } catch (error) {

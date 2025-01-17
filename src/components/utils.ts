@@ -1,10 +1,10 @@
-import { type ChartDataset } from '../types'
+import { type ChartDataset, type UsageInfo } from '../types'
 
 export function calculateOneStationData(usageDataByTime: any, stationId: number): any {
   const countPerHour: { [hour: string]: number } = {}
 
   usageDataByTime.forEach((data: [], index: number) => {
-    const filteredData = data.filter((item) => item.RENT_ID === stationId)
+    const filteredData = data.filter((item: UsageInfo) => item.RENT_ID === stationId)
     countPerHour[index] = filteredData.length
   })
 

@@ -5,8 +5,13 @@
 </template>
 
 <script lang="ts">
-import { Chart, registerables } from 'chart.js'
-import { ChartData } from '../types'
+import {
+  Chart,
+  type ChartConfiguration,
+  registerables,
+  type ChartOptions,
+  type ChartData,
+} from 'chart.js'
 Chart.register(...registerables)
 
 export default {
@@ -55,25 +60,35 @@ export default {
         console.error('Failed to get canvas context!')
         return
       }
-      console.log('ctx1', ctx)
-      this.chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: this.stationChartData.labels,
-          datasets: this.stationChartData.datasets.map((dataset: any) => ({
-            label: dataset.label,
-            data: dataset.data,
-            backgroundColor: dataset.backgroundColor || 'rgba(75, 192, 192, 0.2)',
-            borderColor: dataset.borderColor || 'rgba(75, 192, 192, 1)',
-            borderWidth: dataset.borderWidth || 1,
-          })),
+      const chartOptions: ChartOptions<'bar'> = {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            enabled: true,
+          },
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
-      })
-      console.log('ctx2', ctx)
+      }
+      const chartData: ChartData = {
+        labels: this.stationChartData.labels,
+        datasets: this.stationChartData.datasets.map((dataset: any) => ({
+          label: dataset.label,
+          data: dataset.data,
+          backgroundColor: dataset.backgroundColor || 'rgba(75, 192, 192, 0.2)',
+          borderColor: dataset.borderColor || 'rgba(75, 192, 192, 1)',
+          borderWidth: dataset.borderWidth || 1,
+        })),
+      }
+
+      const chartConfig: ChartConfiguration = {
+        type: 'bar', // Chart type ('bar', 'line', etc.)
+        data: chartData, // Chart data
+        options: chartOptions, // Chart options
+      }
+
+      this.chartInstance = new Chart(ctx, chartConfig)
     },
   },
 }

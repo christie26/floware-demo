@@ -88,24 +88,31 @@ export default {
           console.warn('No features found at the clicked location.')
           return
         }
-        const coordinates = e.features[0].geometry.coordinates.slice()
+        const geometry = e.features[0].geometry
         const properties = e.features[0].properties
 
-        // Ensure that if the map is zoomed out to a level where the popup is near the left or right edge of the screen, it will be aligned properly.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
-        }
-        this.$emit('fetchStationData', properties)
+        if (geometry.type === 'Point' || geometry.type === 'MultiPoint') {
+          const coordinates = geometry.coordinates.slice() // For Point or MultiPoint, we can access coordinates directly
+          let cor = coordinates[0] as number
+          while (Math.abs(e.lngLat.lng - (cor as number)) > 180) {
+            cor += e.lngLat.lng > cor ? 360 : -360
+          }
+          if (properties) {
+            this.$emit('fetchStationData', properties)
 
-        new mapboxgl.Popup()
-          .setLngLat(coordinates)
-          .setHTML(
-            `
-              <h3>${properties.name}</h3>
-              <p>${properties.address || 'No address available'}</p>
-            `,
-          )
-          .addTo(map)
+            if (Array.isArray(coordinates) && coordinates.length === 2) {
+              const lngLat = coordinates as [number, number] // Type assertion to [number, number]
+              new mapboxgl.Popup()
+                .setLngLat(lngLat) // This is now of the correct type
+                .setHTML('<h3>Station Info</h3>')
+                .addTo(map)
+            } else {
+              console.warn('Invalid coordinates:', coordinates)
+            }
+          }
+        }
+
+        // Ensure that if the map is zoomed out to a level where the popup is near the left or right edge of the screen, it will be aligned properly.
       })
 
       const popup = new mapboxgl.Popup({
@@ -114,14 +121,16 @@ export default {
       })
       map.on('mouseenter', 'district-base', function (e) {
         map.getCanvas().style.cursor = 'pointer'
-        const formattedPopulation = new Intl.NumberFormat('de-DE').format(
-          e.features[0].properties.population,
-        )
-        const popupContent = `
+        if (e.features && e.features[0].properties) {
+          const formattedPopulation = new Intl.NumberFormat('de-DE').format(
+            e.features[0].properties.population,
+          )
+          const popupContent = `
           <h3>${e.features[0].properties.SIG_ENG_NM}</h3>
           <p><strong>Population:</strong> ${formattedPopulation}</p>
-        `
-        popup.setLngLat(e.lngLat).setHTML(popupContent).addTo(map)
+          `
+          popup.setLngLat(e.lngLat).setHTML(popupContent).addTo(map)
+        }
       })
       map.on('mouseleave', 'district-base', function () {
         map.getCanvas().style.cursor = ''
@@ -129,14 +138,15 @@ export default {
         popup.remove()
       })
 
-      let hoveredPolygonId: string | null = null
+      let hoveredPolygonId: string | number | null = null
       map.on('mousemove', 'district-outline', (e) => {
-        if (e.features.length > 0) {
+        if (e.features && e.features.length > 0) {
           if (hoveredPolygonId !== null) {
             map.setFeatureState({ source: 'district', id: hoveredPolygonId }, { hover: false })
+          } else if (e.features[0].id) {
+            hoveredPolygonId = e.features[0].id
+            map.setFeatureState({ source: 'district', id: hoveredPolygonId }, { hover: true })
           }
-          hoveredPolygonId = e.features[0].id
-          map.setFeatureState({ source: 'district', id: hoveredPolygonId }, { hover: true })
         }
       })
 
