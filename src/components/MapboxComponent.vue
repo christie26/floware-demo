@@ -27,12 +27,12 @@ export default {
     map.on('load', () => {
       map.addSource('bikeStations', {
         type: 'geojson',
-        data: '../public/seoul_bike_stations.geojson',
+        data: '/seoul_bike_stations.geojson',
       })
 
       map.addSource('district', {
         type: 'geojson',
-        data: '../public/seoul_district.geojson',
+        data: '/seoul_district.geojson',
         generateId: true,
       })
 
